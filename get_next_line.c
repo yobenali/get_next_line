@@ -6,9 +6,10 @@
 /*   By: yobenali <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/25 01:42:19 by yobenali          #+#    #+#             */
-/*   Updated: 2021/11/29 07:44:44 by yobenali         ###   ########.fr       */
+/*   Updated: 2021/11/29 08:25:48 by yobenali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#include "get_next_line.h"
 
 char	*strline(char *str)
 {
@@ -50,7 +51,7 @@ char	*nextstr(char *saved, char *line)
 
 char	*get_next_line(int fd)
 {
-	static char saved[BUFFER_SIZE + 1];
+	static char *saved;
 	char *line;
 	char *buf;
 	char *tmp;
@@ -65,8 +66,24 @@ char	*get_next_line(int fd)
 		saved = ft_strjoin(saved, buf);
 	}
 	line = strline(saved);
+	if (!line)
+		return (NULL);
 	saved = nextstr(saved, line);
 	tmp = line;
 	free(line);
 	return (tmp);
+}
+
+int	main(void)
+{
+	int	fd = open("Hated.txt", O_RDONLY);
+	char *buf;
+	if (fd == -1)
+	{
+		printf("Nothing turning on");
+		exit(1);
+	}
+	read(fd, buf, 20);
+	printf("buf: %s", buf);
+	return (0);
 }
