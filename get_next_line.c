@@ -6,7 +6,7 @@
 /*   By: yobenali <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/25 01:42:19 by yobenali          #+#    #+#             */
-/*   Updated: 2021/11/29 08:25:48 by yobenali         ###   ########.fr       */
+/*   Updated: 2021/11/30 01:09:19 by yobenali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
@@ -33,19 +33,26 @@ char	*strline(char *str)
 	return (tab);
 }
 
-char	*nextstr(char *saved, char *line)
+char	*to_save(char *saved, int size)
 {
 	char 	*new;
 	size_t	i;
-	size_t	j;
 
-	j = 0;
-	i = ft_strlen(line);
-	while (saved[i])
+	i = 0;
+	if (!saved)
+		return (NULL);
+	while (saved[size] != '\n')
+		size++;
+	new = (char *)malloc((ft_strlen(saved) - size + 1) * sizeof(char));
+	if (!new)
+		return (NULL);
+	size++;
+	while (saved[size + i])
 	{
-		new[j] = saved[i];
-		j++;	
+		new[i] = saved[size + i];
+		i++;
 	}
+	new[i] = '\0';
 	return (new);
 }
 
@@ -53,8 +60,7 @@ char	*get_next_line(int fd)
 {
 	static char *saved;
 	char *line;
-	char *buf;
-	char *tmp;
+	char buf[BUFFER_SIZE + 1];
 	size_t len;
 	
 	if (fd < 0 || BUFFER_SIZE <= 0)
@@ -63,15 +69,14 @@ char	*get_next_line(int fd)
 	while (!ft_strchr(saved, '\n') && len != 0)
 	{
 		len = read(fd, buf, BUFFER_SIZE);
+		buf[len] = '\0';
 		saved = ft_strjoin(saved, buf);
 	}
 	line = strline(saved);
-	if (!line)
+	if (!line || !len)
 		return (NULL);
-	saved = nextstr(saved, line);
-	tmp = line;
-	free(line);
-	return (tmp);
+	saved = to_save(saved, 0);
+	return (line);
 }
 
 int	main(void)
@@ -83,7 +88,11 @@ int	main(void)
 		printf("Nothing turning on");
 		exit(1);
 	}
-	read(fd, buf, 20);
-	printf("buf: %s", buf);
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
 	return (0);
 }
