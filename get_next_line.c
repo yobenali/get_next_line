@@ -6,7 +6,7 @@
 /*   By: yobenali <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/25 01:42:19 by yobenali          #+#    #+#             */
-/*   Updated: 2021/11/30 01:09:19 by yobenali         ###   ########.fr       */
+/*   Updated: 2021/12/04 03:11:26 by yobenali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
@@ -19,80 +19,98 @@ char	*strline(char *str)
 
 	j = 0;
 	i = 0;
-	while (str[i] != '\n')
+	if (!str)
+	{
+		free(str);
+		str = NULL;
+		return (NULL);
+	}
+	while (str[i] && str[i] != '\n')
 		i++;
-	tab = (char *)malloc((i + 1) * sizeof(char));
+	if (str[i] == '\n')
+		i++;
+	tab = (char *)ft_calloc((i + 1), sizeof(char));
 	if (!tab)
 		return (NULL);
-	while (j <= i)
+	while (j < i)
 	{
 		tab[j] = str[j];
 		j++;
 	}
-	tab[j] = '\0';
 	return (tab);
 }
 
-char	*to_save(char *saved, int size)
+char	*to_save(char **saved, int size)
 {
 	char 	*new;
-	size_t	i;
+	int		i;
 
 	i = 0;
-	if (!saved)
+	if (!*saved)
 		return (NULL);
-	while (saved[size] != '\n')
+	while (saved[0][size] && saved[0][size] != '\n')
 		size++;
-	new = (char *)malloc((ft_strlen(saved) - size + 1) * sizeof(char));
+	new = (char *)ft_calloc((ft_strlen(*saved) - size + 1), sizeof(char));
 	if (!new)
 		return (NULL);
-	size++;
-	while (saved[size + i])
+	if (saved[0][size])
+		size++;
+	while (saved[0][size + i])
 	{
-		new[i] = saved[size + i];
+		new[i] = saved[0][size + i];
 		i++;
 	}
-	new[i] = '\0';
+	free(*saved);
+	*saved = NULL;
 	return (new);
+}
+
+char	*read_join(char *saved, char *buf, int len, int fd)
+{
+	while (len > 0 && !ft_strchr(saved, '\n'))
+    {
+        len = read(fd, buf, BUFFER_SIZE);
+    	if (len < 0)
+    	{
+        	free(saved);
+        	saved = NULL;
+        	return (NULL);
+    	}
+    	buf[len] = '\0';
+    	saved = ft_strjoin(&saved, buf);
+    }
+	return (saved);
 }
 
 char	*get_next_line(int fd)
 {
-	static char *saved;
-	char *line;
-	char buf[BUFFER_SIZE + 1];
-	size_t len;
+	static char	*saved = NULL;
+	char		*line;
+	char 		buf[BUFFER_SIZE + 1];
+	int 		len;
 	
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	len = 1;
-	while (!ft_strchr(saved, '\n') && len != 0)
-	{
-		len = read(fd, buf, BUFFER_SIZE);
-		buf[len] = '\0';
-		saved = ft_strjoin(saved, buf);
-	}
+	if (!saved)
+		saved = ft_strdup("");
+	saved = read_join(saved, buf, len, fd);
 	line = strline(saved);
-	if (!line || !len)
-		return (NULL);
-	saved = to_save(saved, 0);
+	saved = to_save(&saved, 0);
+	if (line && ft_strlen(line) == 0)
+	{
+		free(line);
+		line = NULL;
+		free(saved);
+		saved = NULL;
+	}
 	return (line);
 }
 
-int	main(void)
+/*int	main(void)
 {
-	int	fd = open("Hated.txt", O_RDONLY);
-	char *buf;
-	if (fd == -1)
-	{
-		printf("Nothing turning on");
-		exit(1);
-	}
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
+	for (int i = 0; i < 16; i++)
+		printf("%s", get_next_line(10));
 	return (0);
-}
+}*/
+

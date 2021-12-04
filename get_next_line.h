@@ -6,7 +6,7 @@
 /*   By: yobenali <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/29 08:04:27 by yobenali          #+#    #+#             */
-/*   Updated: 2021/11/30 00:50:34 by yobenali         ###   ########.fr       */
+/*   Updated: 2021/12/03 19:13:28 by yobenali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,11 @@
 
 char	*get_next_line(int fd);
 char	*ft_strchr(const char *s, int c);
-char	*ft_strjoin(char *s1, char *s2);
-size_t	ft_strlen(const char *s);
+char	*ft_strjoin(char **s1, char *s2);
+int 	ft_strlen(const char *s);
 char	*strline(char *str);
-char	*to_save(char *saved, int size);
+char	*to_save(char **saved, int size);
+char    *ft_strdup(const char *s1);
+void    *ft_calloc(int count, int size);
 
 #endif
