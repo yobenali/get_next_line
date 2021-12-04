@@ -6,10 +6,22 @@
 /*   By: yobenali <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/25 01:42:19 by yobenali          #+#    #+#             */
-/*   Updated: 2021/12/04 03:11:26 by yobenali         ###   ########.fr       */
+/*   Updated: 2021/12/04 17:46:29 by yobenali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
+
+char    *free_garbeg(char **saved, char **line)
+{
+    if (line)
+    {
+        free(*line);
+        *line = NULL;
+    }
+    free(*saved);
+    *saved = NULL;
+    return (NULL);
+}
 
 char	*strline(char *str)
 {
@@ -20,11 +32,7 @@ char	*strline(char *str)
 	j = 0;
 	i = 0;
 	if (!str)
-	{
-		free(str);
-		str = NULL;
-		return (NULL);
-	}
+		return (free_garbeg(&str, NULL));
 	while (str[i] && str[i] != '\n')
 		i++;
 	if (str[i] == '\n')
@@ -47,12 +55,12 @@ char	*to_save(char **saved, int size)
 
 	i = 0;
 	if (!*saved)
-		return (NULL);
+		return (free_garbeg(saved, NULL));
 	while (saved[0][size] && saved[0][size] != '\n')
 		size++;
 	new = (char *)ft_calloc((ft_strlen(*saved) - size + 1), sizeof(char));
 	if (!new)
-		return (NULL);
+		return (free_garbeg(saved, NULL));
 	if (saved[0][size])
 		size++;
 	while (saved[0][size + i])
@@ -65,21 +73,17 @@ char	*to_save(char **saved, int size)
 	return (new);
 }
 
-char	*read_join(char *saved, char *buf, int len, int fd)
+char	*read_join(char **saved, char *buf, int len, int fd)
 {
-	while (len > 0 && !ft_strchr(saved, '\n'))
+	while (len > 0 && !ft_strchr(*saved, '\n'))
     {
         len = read(fd, buf, BUFFER_SIZE);
     	if (len < 0)
-    	{
-        	free(saved);
-        	saved = NULL;
-        	return (NULL);
-    	}
-    	buf[len] = '\0';
-    	saved = ft_strjoin(&saved, buf);
+    		return (free_garbeg(saved, NULL));
+		buf[len] = '\0';
+    	*saved = ft_strjoin(saved, buf);
     }
-	return (saved);
+	return (*saved);
 }
 
 char	*get_next_line(int fd)
@@ -94,23 +98,22 @@ char	*get_next_line(int fd)
 	len = 1;
 	if (!saved)
 		saved = ft_strdup("");
-	saved = read_join(saved, buf, len, fd);
+	saved = read_join(&saved, buf, len, fd);
 	line = strline(saved);
 	saved = to_save(&saved, 0);
 	if (line && ft_strlen(line) == 0)
-	{
-		free(line);
-		line = NULL;
-		free(saved);
-		saved = NULL;
-	}
+		return (free_garbeg(&saved, &line));
 	return (line);
 }
 
-/*int	main(void)
-{
-	for (int i = 0; i < 16; i++)
-		printf("%s", get_next_line(10));
-	return (0);
-}*/
-
+// int	main(void)
+// {
+// 	int fd = 5;
+// 	char *line;
+// 	fd = open("Hated.txt", O_RDONLY);
+// 	line = get_next_line(fd);
+// 	printf("%s", line);
+// 	free(line);
+// 	system("leaks a.out");
+// 	return (0);
+// }
