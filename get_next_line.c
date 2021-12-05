@@ -6,7 +6,7 @@
 /*   By: yobenali <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/25 01:42:19 by yobenali          #+#    #+#             */
-/*   Updated: 2021/12/04 17:46:29 by yobenali         ###   ########.fr       */
+/*   Updated: 2021/12/05 13:18:10 by yobenali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line.h"
@@ -73,16 +73,18 @@ char	*to_save(char **saved, int size)
 	return (new);
 }
 
-char	*read_join(char **saved, char *buf, int len, int fd)
+char	*read_join(char **saved, char **buf, int len, int fd)
 {
 	while (len > 0 && !ft_strchr(*saved, '\n'))
     {
-        len = read(fd, buf, BUFFER_SIZE);
+        len = read(fd, *buf, BUFFER_SIZE);
     	if (len < 0)
-    		return (free_garbeg(saved, NULL));
-		buf[len] = '\0';
-    	*saved = ft_strjoin(saved, buf);
+    		return (free_garbeg(saved, buf));
+		buf[0][len] = '\0';
+    	*saved = ft_strjoin(saved, *buf);
     }
+	free(*buf);
+	*buf = NULL;
 	return (*saved);
 }
 
@@ -90,15 +92,18 @@ char	*get_next_line(int fd)
 {
 	static char	*saved = NULL;
 	char		*line;
-	char 		buf[BUFFER_SIZE + 1];
+	char 		*buf;
 	int 		len;
-	
+
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
+	buf = (char *)ft_calloc((BUFFER_SIZE + 1), sizeof(char));
+	if (!buf)
+		return (NULL);	
 	len = 1;
 	if (!saved)
 		saved = ft_strdup("");
-	saved = read_join(&saved, buf, len, fd);
+	saved = read_join(&saved, &buf, len, fd);
 	line = strline(saved);
 	saved = to_save(&saved, 0);
 	if (line && ft_strlen(line) == 0)
@@ -111,9 +116,9 @@ char	*get_next_line(int fd)
 // 	int fd = 5;
 // 	char *line;
 // 	fd = open("Hated.txt", O_RDONLY);
-// 	line = get_next_line(fd);
-// 	printf("%s", line);
-// 	free(line);
-// 	system("leaks a.out");
+// 	line = get_next_line(-1);
+// 	for (int i = 0; i < 13; i++)
+// 		printf("%s", line);
+// 	//free(line);
 // 	return (0);
 // }

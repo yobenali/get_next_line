@@ -6,7 +6,7 @@
 /*   By: yobenali <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/25 01:42:19 by yobenali          #+#    #+#             */
-/*   Updated: 2021/12/04 17:44:07 by yobenali         ###   ########.fr       */
+/*   Updated: 2021/12/05 11:36:03 by yobenali         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "get_next_line_bonus.h"
@@ -103,7 +103,6 @@ char	*get_next_line(int fd)
 	saved[fd] = read_join(&saved[fd], buf, len, fd);
 	if (!saved[fd])
 		return (NULL);
-	//system("leaks a.out");
 	line = strline(saved[fd]);
 	saved[fd] = to_save(&saved[fd], 0);
 	if (line && ft_strlen(line) == 0)
